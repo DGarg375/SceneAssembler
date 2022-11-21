@@ -37,7 +37,7 @@ class Texture {
      */
     createTexture( gl, flip_y ) {
 
-        throw '"Texture.createTexture" not implemented'
+        // throw '"Texture.createTexture" not implemented'
 
         // TODO: Set up texture flipping (see book Ch7)
 

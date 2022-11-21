@@ -201,7 +201,7 @@ class ShadedObject3D extends Object3D {
      */
     createVAO( gl, shader )
     {
-        throw '"ShadedObject3D.createVAO" is incomplete'
+        // throw '"ShadedObject3D.createVAO" is incomplete'
         // NOTE: There are now two versions of this.num_components -> this.num_components_vec3 and this.num_components_vec2 to accommodate texture coordinate data
 
         this.vertex_array_object = gl.createVertexArray();
@@ -247,7 +247,7 @@ class ShadedObject3D extends Object3D {
      */
     render( gl )
     {
-        throw '"ShadedObject3D.render" is incomplete'
+        // throw '"ShadedObject3D.render" is incomplete'
 
         this.shader.use( )
 

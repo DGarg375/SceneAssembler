@@ -98,7 +98,7 @@ class OBJLoader {
         // Reorder entries to match the order of vertex position indices
         [vertex_positions, vertex_normals, vertex_texture_coords, position_indices] = this.resolveIndexGroups(vertex_positions, vertex_normals, vertex_texture_coords, position_indices, normal_indices, texture_coord_indices)
 
-        throw '"OBJLoader.load" is incomplete'
+        // throw '"OBJLoader.load" is incomplete'
 
         // TODO: Merge vertex positions and normals into a single vertex list
         // TODO: If the loaded material has texture(s), pass tangents and texture coordinates too
