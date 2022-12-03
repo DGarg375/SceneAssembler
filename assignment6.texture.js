@@ -17,7 +17,6 @@ class Texture {
         this.filename = filename 
         this.texture = null
         this.texture = this.createTexture( gl, flip_y )
-        console.log(this.texture);
     }
 
     /**

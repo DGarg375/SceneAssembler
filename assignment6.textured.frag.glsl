@@ -58,14 +58,20 @@ in mat3 o_TBN;
 
 // Shades an ambient light and returns this light's contribution
 vec3 shadeAmbientLight(Material material, AmbientLight light) {
+    vec3 result = vec3(0);
+    if(light.intensity == 0.0) {
+        return result;
+    }
+    vec3 mapkD = texture(u_material.map_kD, o_vertex_texture_coords_world).xyz;
 
+    result = light.color * light.intensity * material.kA * mapkD;
     // TODO: Implement this
     // TODO: Include the material's map_kD to scale kA and to provide texture even in unlit areas
     // NOTE: We could use a separate map_kA for this, but most of the time we just want the same texture in unlit areas
     // HINT: Refer to http://paulbourke.net/dataformats/mtl/ for details
     // HINT: Parts of ./shaders/phong.frag.glsl can be re-used here
 
-    return vec3(0);
+    return result;
 }
 
 // Shades a directional light and returns its contribution
@@ -76,8 +82,27 @@ vec3 shadeDirectionalLight(Material material, DirectionalLight light, vec3 norma
     // HINT: The darker pixels in the roughness map (map_nS) are the less shiny it should be
     // HINT: Refer to http://paulbourke.net/dataformats/mtl/ for details
     // HINT: Parts of ./shaders/phong.frag.glsl can be re-used here
+    vec3 mapkD = texture(u_material.map_kD, o_vertex_texture_coords_world).xyz; 
+    vec3 mapnS = texture(u_material.map_nS, o_vertex_texture_coords_world).xyz;
+    vec3 result = vec3(0);
+    if (light.intensity == 0.0)
+        return result;
 
-    return vec3(0);
+    vec3 N = normalize(normal);
+    vec3 L = o_TBN * -normalize(light.direction);
+    vec3 V = o_TBN * normalize(vertex_position - eye);
+
+
+    // Diffuse
+    float LN = max(dot(L, N), 0.0);
+    result += LN * light.color * light.intensity * material.kD * mapkD;
+
+    // Specular
+    vec3 R = reflect(L, N);
+    result += pow( max(dot(R, V), 0.0), material.shininess) * light.color * light.intensity * material.kS * mapnS;
+
+
+    return result;
 }
 
 // Shades a point light and returns its contribution
@@ -89,7 +114,27 @@ vec3 shadePointLight(Material material, PointLight light, vec3 normal, vec3 eye,
     // HINT: Refer to http://paulbourke.net/dataformats/mtl/ for details
     // HINT: Parts of ./shaders/phong.frag.glsl can be re-used here
 
-    return vec3(0);
+    vec3 result = vec3(0);
+    if (light.intensity == 0.0)
+        return result;
+
+    vec3 N = normalize(normal);
+    float D = distance(light.position, vertex_position);
+    vec3 L = o_TBN * normalize(light.position - vertex_position);
+    vec3 V = o_TBN * normalize(vertex_position - eye);
+
+    // Diffuse
+    float LN = max(dot(L, N), 0.0);
+    result += LN * light.color * light.intensity * material.kD;
+
+    // Specular
+    vec3 R = reflect(L, N);
+    result += pow( max(dot(R, V), 0.0), material.shininess) * light.color * light.intensity * material.kS;
+
+    // Attenuation
+    result *= 1.0 / (D*D+1.0);
+
+    return result;
 }
 
 void main() {
@@ -112,7 +157,9 @@ void main() {
     // iterate over all possible lights and add their contribution
     for(int i = 0; i < MAX_LIGHTS; i++) {
         // TODO: Call your shading functions here like you did in A5
-        
+        light_contribution += shadeAmbientLight(u_material, u_lights_ambient[i]);
+        light_contribution += shadeDirectionalLight(u_material, u_lights_directional[i], o_vertex_normal_world, u_eye, o_vertex_position_world);
+        light_contribution += shadePointLight(u_material, u_lights_point[i], o_vertex_normal_world, u_eye, o_vertex_position_world);
     }
 
     o_fragColor = vec4(light_contribution, 1.0);

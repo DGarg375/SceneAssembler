@@ -33,6 +33,7 @@ void main() {
     // TODO: Use the Gram-Schmidt process to re-orthogonalize tangents
     T = normalize(T - dot(T,N) * N);
     vec3 B = cross(N,T);
+    B = normalize(vec3(u_m * vec4(B, 0.0)));
     // NOTE: Different from the book, try to do all calculations in world space using the TBN to transform normals
     // HINT: Refer to https://learnopengl.com/Advanced-Lighting/Normal-Mapping for all above
     mat3 tbn = mat3(T, B, N);
