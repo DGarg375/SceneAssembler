@@ -102,14 +102,29 @@ class OBJLoader {
 
         // TODO: Merge vertex positions and normals into a single vertex list
         // TODO: If the loaded material has texture(s), pass tangents and texture coordinates too
-        let vertex_data = [...vertex_positions, ...vertex_normals]
+        let vertex_data = []
+        let newVertexData = [];
+        for(let i = 0; i < vertex_positions.length; i+=3) {
+            vertex_data.push(vertex_positions[i], vertex_positions[i+1], vertex_positions[i+2]);
+            vertex_data.push(vertex_normals[i], vertex_normals[i+1], vertex_normals[i+2]);
+        }
+        
         if (material.hasTexture()) {
             // If there is a texture, we made sure to have texture coordinates
             // We calculate the per-vertex tangents in all cases even if there is no normal map
             // This makes VAO creation easier and more uniform
             vertex_tangents = this.calculateTangents(vertex_positions, vertex_texture_coords, position_indices)
-            
+            let coord_tracker = 0, tangent_tracker = 0;
+            for(let i = 0; i < vertex_data.length; i+=6) {
+                newVertexData.push(vertex_data[i], vertex_data[i+1], vertex_data[i+2], vertex_data[i+3], vertex_data[i+4], vertex_data[i+5]);
+                newVertexData.push(vertex_tangents[tangent_tracker], vertex_tangents[tangent_tracker+1], vertex_tangents[tangent_tracker+2]);
+                newVertexData.push(vertex_texture_coords[coord_tracker], vertex_texture_coords[coord_tracker+1])
+                tangent_tracker += 3;
+                coord_tracker += 2;
+            }
+            vertex_data = newVertexData;
             // TODO: Pass tangents and texture coordinates
+            
         }
 
         return [ vertex_data, position_indices, material ]

@@ -218,7 +218,7 @@ class ShadedObject3D extends Object3D {
         if (location >= 0) {
             // TODO: Set up position attribute
             gl.enableVertexAttribArray( location )
-            stride = 0, offset = 0;
+            stride = 44, offset = 0;
             gl.vertexAttribPointer( location, this.num_components_vec3, gl.FLOAT, false, stride, offset )
 
         }
@@ -227,18 +227,24 @@ class ShadedObject3D extends Object3D {
         if (location >= 0) {
             // TODO: Set up normal attribute
             gl.enableVertexAttribArray(location);
-            stride = 0, offset = (this.vertices.length / 2) * Float32Array.BYTES_PER_ELEMENT;
+            stride = 44, offset = 12;
             gl.vertexAttribPointer( location, this.num_components_vec3, gl.FLOAT, false, stride, offset )
         }
 
         location = shader.getAttributeLocation( 'a_tangent' )
         if (location >= 0 && this.material.hasTexture()) {
             // TODO: Set up tangent attribute
+            gl.enableVertexAttribArray(location);
+            stride = 44, offset = 24;
+            gl.vertexAttribPointer( location, this.num_components_vec3, gl.FLOAT, false, stride, offset )
         }
 
         location = shader.getAttributeLocation( 'a_texture_coord' )
         if (location >= 0 && this.material.hasTexture()) {
             // TODO: Set up texture coordinate attribute
+            gl.enableVertexAttribArray(location);
+            stride = 44, offset = 36;
+            gl.vertexAttribPointer( location, this.num_components_vec2, gl.FLOAT, false, stride, offset )
         }
 
         gl.bindVertexArray( null )
@@ -259,7 +265,6 @@ class ShadedObject3D extends Object3D {
         this.shader.use( )
 
         // TODO: Pass basic material properties (kA, kD, kS, shininess)
-        console.log(this.material);
         this.shader.setUniform3f('u_material.kA', this.material.kA);
         this.shader.setUniform3f('u_material.kD', this.material.kD);
         this.shader.setUniform3f('u_material.kS', this.material.kS);
