@@ -16,6 +16,7 @@ uniform mat4x4 u_p;
 out vec3 o_vertex_normal_world;
 out vec3 o_vertex_position_world;
 out vec2 o_vertex_texture_coords_world;
+out mat3 o_TBN;
 
 void main() {
 
@@ -26,18 +27,21 @@ void main() {
 
     // TODO: Construct TBN matrix from normals, tangents and bitangents
 
-    vec3 T = normalize(abs(a_tangent.x) > abs(a_tangent.z) ? vec3(-a_tangent.y, a_tangent.x, 0) : vec3(0, -a_tangent.z, a_tangent.y));
-    vec3 B = normalize(cross(a_tangent, a_normal));
-    vec3 N = a_normal;
+    vec3 T = normalize(vec3(u_m * vec4(a_tangent, 0.0)));
+    vec3 N = normalize(vec3(u_m * vec4(a_normal, 0.0)));
+
     // TODO: Use the Gram-Schmidt process to re-orthogonalize tangents
+    T = normalize(T - dot(T,N) * N);
+    vec3 B = cross(N,T);
     // NOTE: Different from the book, try to do all calculations in world space using the TBN to transform normals
     // HINT: Refer to https://learnopengl.com/Advanced-Lighting/Normal-Mapping for all above
     mat3 tbn = mat3(T, B, N);
-    vec3 vertex_normal_world = normalize(tbn * a_normal);
 
     // TODO: Forward data to fragment stage
 
     gl_Position = u_p * u_v * vertex_position_world;
     o_vertex_position_world = vertex_position_world.xyz;
-    o_vertex_normal_world = vertex_normal_world;
+    o_vertex_normal_world = a_normal;
+    o_vertex_texture_coords_world = a_texture_coord;
+    o_TBN = tbn;
 }
