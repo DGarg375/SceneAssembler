@@ -51,6 +51,9 @@ out vec4 o_fragColor;
 
 // received from vertex stage
 // TODO: Create variables to receive from the vertex stage
+in vec3 o_vertex_normal_world;
+in vec3 o_vertex_position_world;
+in vec2 o_vertex_texture_coords_world;
 
 // Shades an ambient light and returns this light's contribution
 vec3 shadeAmbientLight(Material material, AmbientLight light) {
@@ -91,12 +94,12 @@ vec3 shadePointLight(Material material, PointLight light, vec3 normal, vec3 eye,
 void main() {
 
     // TODO: Calculate the normal from the normal map and tbn matrix to get the world normal
-    vec3 normal = vec3(0,0,0);
+    vec3 normal = vec3(0.2,0.1,0.2);
 
     // if we only want to visualize the normals, no further computations are needed
     // !do not change this code!
     if (u_show_normals == true) {
-        o_fragColor = vec4(normal, 1.0);
+        o_fragColor = vec4(o_vertex_normal_world, 1.0);
         return;
     }
 
