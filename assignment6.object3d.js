@@ -217,11 +217,18 @@ class ShadedObject3D extends Object3D {
         let location = shader.getAttributeLocation( 'a_position' )
         if (location >= 0) {
             // TODO: Set up position attribute
+            gl.enableVertexAttribArray( location )
+            stride = 0, offset = 0;
+            gl.vertexAttribPointer( location, this.num_components_vec3, gl.FLOAT, false, stride, offset )
+
         }
 
         location = shader.getAttributeLocation( 'a_normal' )
         if (location >= 0) {
             // TODO: Set up normal attribute
+            gl.enableVertexAttribArray(location);
+            stride = 0, offset = (this.vertices.length / 2) * Float32Array.BYTES_PER_ELEMENT;
+            gl.vertexAttribPointer( location, this.num_components_vec3, gl.FLOAT, false, stride, offset )
         }
 
         location = shader.getAttributeLocation( 'a_tangent' )
@@ -252,6 +259,11 @@ class ShadedObject3D extends Object3D {
         this.shader.use( )
 
         // TODO: Pass basic material properties (kA, kD, kS, shininess)
+        console.log(this.material);
+        this.shader.setUniform3f('u_material.kA', this.material.kA);
+        this.shader.setUniform3f('u_material.kD', this.material.kD);
+        this.shader.setUniform3f('u_material.kS', this.material.kS);
+        this.shader.setUniform1f('u_material.shininess', this.material.shininess);
 
         // TODO: Associate the sampler uniforms (map_kD, map_nS, map_norm) in the shader's u_material with different texture units
 

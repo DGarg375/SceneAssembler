@@ -102,7 +102,7 @@ class OBJLoader {
 
         // TODO: Merge vertex positions and normals into a single vertex list
         // TODO: If the loaded material has texture(s), pass tangents and texture coordinates too
-        let vertex_data = []
+        let vertex_data = [...vertex_positions, ...vertex_normals]
         if (material.hasTexture()) {
             // If there is a texture, we made sure to have texture coordinates
             // We calculate the per-vertex tangents in all cases even if there is no normal map
