@@ -62,9 +62,9 @@ vec3 shadeAmbientLight(Material material, AmbientLight light) {
     if(light.intensity == 0.0) {
         return result;
     }
-    vec3 mapkD = texture(u_material.map_kD, o_vertex_texture_coords_world).xyz;
+    vec4 mapkD = texture(u_material.map_kD, o_vertex_texture_coords_world);
 
-    result = light.color * light.intensity * material.kA * mapkD;
+    result = light.color * light.intensity * material.kA * mapkD.rgb;
     // TODO: Implement this
     // TODO: Include the material's map_kD to scale kA and to provide texture even in unlit areas
     // NOTE: We could use a separate map_kA for this, but most of the time we just want the same texture in unlit areas
@@ -82,20 +82,20 @@ vec3 shadeDirectionalLight(Material material, DirectionalLight light, vec3 norma
     // HINT: The darker pixels in the roughness map (map_nS) are the less shiny it should be
     // HINT: Refer to http://paulbourke.net/dataformats/mtl/ for details
     // HINT: Parts of ./shaders/phong.frag.glsl can be re-used here
-    vec3 mapkD = texture(u_material.map_kD, o_vertex_texture_coords_world).xyz; 
-    vec3 mapnS = texture(u_material.map_nS, o_vertex_texture_coords_world).xyz;
+    vec4 mapkD = texture(u_material.map_kD, o_vertex_texture_coords_world); 
+    float mapnS = texture(u_material.map_nS, o_vertex_texture_coords_world).r;
     vec3 result = vec3(0);
     if (light.intensity == 0.0)
         return result;
 
-    vec3 N = normalize(normal);
+    vec3 N = normal;
     vec3 L = o_TBN * -normalize(light.direction);
     vec3 V = o_TBN * normalize(vertex_position - eye);
 
 
     // Diffuse
     float LN = max(dot(L, N), 0.0);
-    result += LN * light.color * light.intensity * material.kD * mapkD;
+    result += LN * light.color * light.intensity * material.kD * mapkD.r;
 
     // Specular
     vec3 R = reflect(L, N);
@@ -108,8 +108,8 @@ vec3 shadeDirectionalLight(Material material, DirectionalLight light, vec3 norma
 // Shades a point light and returns its contribution
 vec3 shadePointLight(Material material, PointLight light, vec3 normal, vec3 eye, vec3 vertex_position) {
 
-    vec3 mapkD = texture(u_material.map_kD, o_vertex_texture_coords_world).xyz; 
-    vec3 mapnS = texture(u_material.map_nS, o_vertex_texture_coords_world).xyz;
+    vec4 mapkD = texture(u_material.map_kD, o_vertex_texture_coords_world); 
+    float mapnS = texture(u_material.map_nS, o_vertex_texture_coords_world).r;
     // TODO: Implement this
     // TODO: Use the material's map_kD and map_nS to scale kD and shininess
     // HINT: The darker pixels in the roughness map (map_nS) are the less shiny it should be
@@ -120,14 +120,14 @@ vec3 shadePointLight(Material material, PointLight light, vec3 normal, vec3 eye,
     if (light.intensity == 0.0)
         return result;
 
-    vec3 N = normalize(normal);
+    vec3 N = normal;
     float D = distance(light.position, vertex_position);
     vec3 L = o_TBN * normalize(light.position - vertex_position);
     vec3 V = o_TBN * normalize(vertex_position - eye);
 
     // Diffuse
     float LN = max(dot(L, N), 0.0);
-    result += LN * light.color * light.intensity * material.kD * mapkD;
+    result += LN * light.color * light.intensity * material.kD * mapkD.r;
 
     // Specular
     vec3 R = reflect(L, N);
@@ -160,8 +160,8 @@ void main() {
     for(int i = 0; i < MAX_LIGHTS; i++) {
         // TODO: Call your shading functions here like you did in A5
         light_contribution += shadeAmbientLight(u_material, u_lights_ambient[i]);
-        light_contribution += shadeDirectionalLight(u_material, u_lights_directional[i], o_vertex_normal_world, u_eye, o_vertex_position_world);
-        light_contribution += shadePointLight(u_material, u_lights_point[i], o_vertex_normal_world, u_eye, o_vertex_position_world);
+        light_contribution += shadeDirectionalLight(u_material, u_lights_directional[i], normal, u_eye, o_vertex_position_world);
+        light_contribution += shadePointLight(u_material, u_lights_point[i], normal, u_eye, o_vertex_position_world);
     }
 
     o_fragColor = vec4(light_contribution, 1.0);
