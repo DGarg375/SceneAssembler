@@ -108,6 +108,8 @@ vec3 shadeDirectionalLight(Material material, DirectionalLight light, vec3 norma
 // Shades a point light and returns its contribution
 vec3 shadePointLight(Material material, PointLight light, vec3 normal, vec3 eye, vec3 vertex_position) {
 
+    vec3 mapkD = texture(u_material.map_kD, o_vertex_texture_coords_world).xyz; 
+    vec3 mapnS = texture(u_material.map_nS, o_vertex_texture_coords_world).xyz;
     // TODO: Implement this
     // TODO: Use the material's map_kD and map_nS to scale kD and shininess
     // HINT: The darker pixels in the roughness map (map_nS) are the less shiny it should be
@@ -125,11 +127,11 @@ vec3 shadePointLight(Material material, PointLight light, vec3 normal, vec3 eye,
 
     // Diffuse
     float LN = max(dot(L, N), 0.0);
-    result += LN * light.color * light.intensity * material.kD;
+    result += LN * light.color * light.intensity * material.kD * mapkD;
 
     // Specular
     vec3 R = reflect(L, N);
-    result += pow( max(dot(R, V), 0.0), material.shininess) * light.color * light.intensity * material.kS;
+    result += pow( max(dot(R, V), 0.0), material.shininess) * light.color * light.intensity * material.kS * mapnS;
 
     // Attenuation
     result *= 1.0 / (D*D+1.0);
