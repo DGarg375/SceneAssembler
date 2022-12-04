@@ -62,9 +62,9 @@ vec3 shadeAmbientLight(Material material, AmbientLight light) {
     if(light.intensity == 0.0) {
         return result;
     }
-    vec4 mapkD = texture(u_material.map_kD, o_vertex_texture_coords_world);
+    vec3 mapkD = vec3(texture(u_material.map_kD, o_vertex_texture_coords_world));
 
-    result = light.color * light.intensity * material.kA * mapkD.rgb;
+    result = light.color * light.intensity * material.kA * mapkD;
     // TODO: Implement this
     // TODO: Include the material's map_kD to scale kA and to provide texture even in unlit areas
     // NOTE: We could use a separate map_kA for this, but most of the time we just want the same texture in unlit areas
@@ -82,7 +82,7 @@ vec3 shadeDirectionalLight(Material material, DirectionalLight light, vec3 norma
     // HINT: The darker pixels in the roughness map (map_nS) are the less shiny it should be
     // HINT: Refer to http://paulbourke.net/dataformats/mtl/ for details
     // HINT: Parts of ./shaders/phong.frag.glsl can be re-used here
-    vec4 mapkD = texture(u_material.map_kD, o_vertex_texture_coords_world); 
+    vec3 mapkD = vec3(texture(u_material.map_kD, o_vertex_texture_coords_world)); 
     float mapnS = texture(u_material.map_nS, o_vertex_texture_coords_world).r;
     vec3 result = vec3(0);
     if (light.intensity == 0.0)
@@ -95,11 +95,11 @@ vec3 shadeDirectionalLight(Material material, DirectionalLight light, vec3 norma
 
     // Diffuse
     float LN = max(dot(L, N), 0.0);
-    result += LN * light.color * light.intensity * material.kD * mapkD.r;
+    result += LN * light.color * light.intensity * material.kD * mapkD;
 
     // Specular
     vec3 R = reflect(L, N);
-    result += pow( max(dot(R, V), 0.0), material.shininess) * light.color * light.intensity * material.kS * mapnS;
+    result += pow( max(dot(R, V), 0.0), material.shininess * mapnS) * light.color * light.intensity * material.kS;
 
 
     return result;
@@ -108,7 +108,7 @@ vec3 shadeDirectionalLight(Material material, DirectionalLight light, vec3 norma
 // Shades a point light and returns its contribution
 vec3 shadePointLight(Material material, PointLight light, vec3 normal, vec3 eye, vec3 vertex_position) {
 
-    vec4 mapkD = texture(u_material.map_kD, o_vertex_texture_coords_world); 
+    vec3 mapkD = vec3(texture(u_material.map_kD, o_vertex_texture_coords_world)); 
     float mapnS = texture(u_material.map_nS, o_vertex_texture_coords_world).r;
     // TODO: Implement this
     // TODO: Use the material's map_kD and map_nS to scale kD and shininess
@@ -127,11 +127,11 @@ vec3 shadePointLight(Material material, PointLight light, vec3 normal, vec3 eye,
 
     // Diffuse
     float LN = max(dot(L, N), 0.0);
-    result += LN * light.color * light.intensity * material.kD * mapkD.r;
+    result += LN * light.color * light.intensity * material.kD * mapkD;
 
     // Specular
     vec3 R = reflect(L, N);
-    result += pow( max(dot(R, V), 0.0), material.shininess) * light.color * light.intensity * material.kS * mapnS;
+    result += pow( max(dot(R, V), 0.0), material.shininess * mapnS) * light.color * light.intensity * material.kS;
 
     // Attenuation
     result *= 1.0 / (D*D+1.0);
