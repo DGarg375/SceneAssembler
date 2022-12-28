@@ -1,5 +1,6 @@
 # Scene Assembler
 ## 3D Scene Loader and Renderer
+
 This application can load, render, and manipulate 3D scenes. A scene consists of 3D models and a scenegraph in which those objects are arranged. Scene files are represented in JSON format, and we use glMatrix for matrix/vector transformations and calculations.
 
 We also implemented camera movement and Phong shading for lighting purposes. Shaders are written in GLSL, with separate shaders for unlit and lit lighting. Some scenes have multiple lighting, and the lit shader supports ambient, directional, and point lights.
